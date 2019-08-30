@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
 Route::get('test', 'API\UserController2@testing');
 
 //Route::post('login', 'API\UserController2@login');
-Route::post('register', 'API\UserController2@register');
+//Route::post('register', 'API\UserController2@register');
 Route::get('details', 'API\UserController2@details');
 Route::get('users', 'API\UserController2@users');
 
@@ -32,7 +32,8 @@ Route::post('createpum', 'API\UserController2@createPum');
 
 
 //*********** User Route ******************//
-Route::POST('login', 'UserController@login');
+Route::POST('login',    'UserController@login');
+Route::POST('register', 'UserController@register');
 
 
 

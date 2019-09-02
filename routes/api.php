@@ -24,9 +24,9 @@ Route::get('test', 'API\UserController2@testing');
 Route::get('details', 'API\UserController2@details');
 Route::get('users', 'API\UserController2@users');
 
-Route::get('getdept', 'API\UserController2@getdept');
-Route::get('gettrxtype', 'API\UserController2@gettrxtype');
-Route::post('doctype', 'API\UserController2@typeDocument');
+//Route::get('getdept', 'API\UserController2@getdept');
+//Route::get('gettrxtype', 'API\UserController2@gettrxtype');
+//Route::post('doctype', 'API\UserController2@typeDocument');
 
 Route::post('createpum', 'API\UserController2@createPum');
 
@@ -34,6 +34,14 @@ Route::post('createpum', 'API\UserController2@createPum');
 //*********** User Route ******************//
 Route::POST('login',    'UserController@login');
 Route::POST('register', 'UserController@register');
+
+
+//*********** Create PUM Route ******************//
+Route::get('getdept',       'PumController\CreatePumController@getdept');
+Route::get('gettrxtype',    'PumController\CreatePumController@gettrxtype');
+Route::post('getdoctype',   'PumController\CreatePumController@getTypeDocument');
+
+
 
 
 

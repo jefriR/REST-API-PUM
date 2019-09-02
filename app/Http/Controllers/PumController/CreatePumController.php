@@ -24,7 +24,7 @@ class CreatePumController extends Controller
         return response()->json(['error' => false,'trx' => $trx], $this->successStatus);
     }
 
-    public function typeDocument(Request $request){
+    public function getTypeDocument(Request $request){
         $type       = $request->doc_type;
         $document   = DB::table('pum_ref_doc_all')->select('doc_num', 'doc_date', 'doc_amount')->where('doc_type', $type)->paginate(2);
         return response()->json(['error' => false,'document' => $document], $this->successStatus);
@@ -36,10 +36,10 @@ class CreatePumController extends Controller
             'emp_dept'      => 'required',
             'use_date'      => 'required | date',
             'resp_date'     => 'required | date',
-            'doc_num'      => 'required',
+            'doc_num'       => 'required',
             'trx_type'      => 'required',
             'description'   => 'required',
-            'currency'      => 'required',
+            'pin'           => 'required',
             'amount'        => 'required',
             'upload_file'   => 'required'
         ]);
@@ -79,7 +79,7 @@ class CreatePumController extends Controller
         $data->pum_trx_id       = $trx_id;
         $data->pum_trx_type_id  = $request->trx_type;
         $data->description      = $request->description;
-        $data->curr_code        = $request->currency;
+        $data->curr_code        = 'Rp';
         $data->amount           = $request->amount;
         $data->save();
 

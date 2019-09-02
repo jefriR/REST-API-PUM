@@ -37,7 +37,8 @@ class UserController extends Controller
         $cekPassword = password_verify($request->password,$cekId[0]->PASSWORD);
 
         if ($cekId > 0 && $cekPassword == true) {
-            $return = DB::select("SELECT a.*, b.PIN FROM hr_employees a, users b where a.EMP_NUM = '$nik' and b.emp_num = a.emp_num");
+            $return = DB::select("SELECT a.*, b.PIN, c.ID,c.EMP_ID,max(c.PROXY_AMOUNT_TO) FROM hr_employees a, users b, pum_app_hierar c where a.EMP_NUM = '$nik' and b.emp_num = a.emp_num AND c.EMP_ID = a.EMP_ID");
+//            $return = DB::select("SELECT a.*, b.PIN FROM hr_employees a, users b where a.EMP_NUM = '$nik' and b.emp_num = a.emp_num");
             return response()->json(['error' => false,'message' => "Login Successfully", 'user' => $return[0]],200);
         } elseif($cekPassword == false){
             return response()->json(['error' => false,'message' => "Password Not Match"],302);
@@ -96,3 +97,4 @@ class UserController extends Controller
 
 
 }
+/*SELECT a.*, b.PIN, c.ID,c.EMP_ID,max(c.PROXY_AMOUNT_TO) as maxAmount FROM hr_employees a, users b, pum_app_hierar c where a.EMP_NUM = '1994000477' and b.emp_num = a.emp_num AND c.EMP_ID = a.EMP_ID*/

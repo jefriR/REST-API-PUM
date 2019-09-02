@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\PumController;
 
 use App\Department;
+use App\Employees;
 use App\trx_all;
 use App\trx_lines_all;
+use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +26,7 @@ class CreatePumController extends Controller
         return response()->json(['error' => false,'trx' => $trx], $this->successStatus);
     }
 
-    public function getTypeDocument(Request $request){
+    public function getDocDetail(Request $request){
         $type       = $request->doc_type;
         $document   = DB::table('pum_ref_doc_all')->select('doc_num', 'doc_date', 'doc_amount')->where('doc_type', $type)->paginate(2);
         return response()->json(['error' => false,'document' => $document], $this->successStatus);
@@ -48,6 +50,14 @@ class CreatePumController extends Controller
             return response()->json(['error'=>true, 'message' => "Required Parameters are Missing or Empty"], 401);
         }
 
+        $nik    = DB::table('hr_employees')->select("emp_num")->where('name', $request->emp_name)->get();
+        $pinUser= DB::table('users')->select('pin')->where('emp_num',$nik[0]->emp_num)->get();
+        $cekPin = password_verify($request->pin,$pinUser[0]->pin);
+
+        if ($cekPin == false){
+            return response()->json(['error'=>true, 'message' => "pin salah"], 400);
+        }
+
         //Get id Employ + Depart
         $emp_id = DB::table('hr_employees')->select('emp_id')->where('name',$request->emp_name)->get();
         $emp_id = $emp_id[0]->{'emp_id'};
@@ -69,6 +79,7 @@ class CreatePumController extends Controller
         $data->po_number        = $request->doc_num;
         $data->use_date         = $request->use_date;
         $data->resp_estimate_date = $request-> resp_date;
+        $data->pum_status       = 'N';
         $data->upload_data      = $request->upload_file;
         $data->save();
 

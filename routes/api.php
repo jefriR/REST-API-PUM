@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 //    return $request->user();
 //});
 
-Route::get('test', 'API\UserController2@testing');
+Route::get('test', 'TestingController@testing');
 
 //Route::post('login', 'API\UserController2@login');
 //Route::post('register', 'API\UserController2@register');
@@ -28,7 +28,7 @@ Route::get('users', 'API\UserController2@users');
 //Route::get('gettrxtype', 'API\UserController2@gettrxtype');
 //Route::post('doctype', 'API\UserController2@typeDocument');
 
-Route::post('createpum', 'API\UserController2@createPum');
+//Route::post('createpum', 'API\UserController2@createPum');
 
 
 //*********** User Route ******************//
@@ -39,7 +39,8 @@ Route::POST('register', 'UserController@register');
 //*********** Create PUM Route ******************//
 Route::get('getdept',       'PumController\CreatePumController@getdept');
 Route::get('gettrxtype',    'PumController\CreatePumController@gettrxtype');
-Route::post('getdoctype',   'PumController\CreatePumController@getTypeDocument');
+Route::post('getdocdetail', 'PumController\CreatePumController@getDocDetail');
+Route::post('createpum',    'PumController\CreatePumController@createPum');
 
 
 

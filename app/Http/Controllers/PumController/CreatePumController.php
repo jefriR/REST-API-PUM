@@ -71,7 +71,7 @@ class CreatePumController extends Controller
         $substring  = substr($getTrxNum,4);
         $thisYear   = date('Y');
         $trx_num    = $thisYear.($substring+1);
-/*
+
         $data  = new trx_all();
         $data->trx_num          = $trx_num;
         $data->trx_date         = date('Y-m-d');
@@ -94,10 +94,16 @@ class CreatePumController extends Controller
         $data->curr_code        = 'Rp';
         $data->amount           = $request->amount;
         $data->save();
-*/
-      app('app\Http\Controllers\PumContoller\CekApprovalController')->cekStatusPum($emp_id,$request->amount);
 
-        return response()->json(['error' => false,'message' => 'ss'], $this->successStatus);
-//        return response()->json(['error' => false,'message' => 'sukses'], $this->successStatus);
+//      app('app\Http\Controllers\PumContoller\CekApprovalController')->cekStatusPum($emp_id,$request->amount);
+
+        $cekApproval    = DB::select("SELECT * FROM PUM_APP_HIERAR WHERE EMP_ID = '$emp_id' AND '$request->amount' BETWEEN PROXY_AMOUNT_FROM AND PROXY_AMOUNT_TO");
+        foreach ($cekApproval as $data){
+            DB::select("INSERT INTO PUM_UPLOAD_TEMP(TRX_ID, APPROVAL_ID) VALUES ( '$trx_id', '$data->APPROVAL_EMP_ID1')");
+        }
+
+
+//        return response()->json(['error' => false,'message' => $cekApproval], $this->successStatus);
+        return response()->json(['error' => false,'message' => 'sukses'], $this->successStatus);
     }
 }

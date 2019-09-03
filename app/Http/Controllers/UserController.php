@@ -27,7 +27,7 @@ class UserController extends Controller
         $nik         = $request->emp_num;
         $cekId       = DB::select("select * from users where emp_num like '$nik'");
         if($cekId == null){
-            return response()->json(['error' => false,'message' => "User Not Exist"],302);
+            return response()->json(['error' => true,'message' => "User Not Exist"],302);
         }
 
         if ($validator->fails()) {
@@ -37,11 +37,10 @@ class UserController extends Controller
         $cekPassword = password_verify($request->password,$cekId[0]->PASSWORD);
 
         if ($cekId > 0 && $cekPassword == true) {
-            $return = DB::select("SELECT a.*, b.PIN, c.ID,c.EMP_ID,max(c.PROXY_AMOUNT_TO) FROM hr_employees a, users b, pum_app_hierar c where a.EMP_NUM = '$nik' and b.emp_num = a.emp_num AND c.EMP_ID = a.EMP_ID");
-//            $return = DB::select("SELECT a.*, b.PIN FROM hr_employees a, users b where a.EMP_NUM = '$nik' and b.emp_num = a.emp_num");
+            $return = DB::select("SELECT xx.*, max(xx.proxy_amount_to) as MAX_AMOUNT FROM (SELECT a.*,c.PROXY_AMOUNT_TO FROM hr_employees a, pum_app_hierar c where a.EMP_NUM = '$nik' AND c.EMP_ID = a.EMP_ID) as xx");
             return response()->json(['error' => false,'message' => "Login Successfully", 'user' => $return[0]],200);
         } elseif($cekPassword == false){
-            return response()->json(['error' => false,'message' => "Password Not Match"],302);
+            return response()->json(['error' => true,'message' => "Password Not Match"],302);
         }elseif ($cekId == null) {
             return response()->json(['error'=>'Unauthorised'],422);
         } else{

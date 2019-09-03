@@ -9,6 +9,7 @@ use App\trx_lines_all;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -50,10 +51,10 @@ class CreatePumController extends Controller
             return response()->json(['error'=>true, 'message' => "Required Parameters are Missing or Empty"], 401);
         }
 
+        // Cek PIN user sebelum create new PUM
         $nik    = DB::table('hr_employees')->select("emp_num")->where('name', $request->emp_name)->get();
         $pinUser= DB::table('users')->select('pin')->where('emp_num',$nik[0]->emp_num)->get();
         $cekPin = password_verify($request->pin,$pinUser[0]->pin);
-
         if ($cekPin == false){
             return response()->json(['error'=>true, 'message' => "pin salah"], 400);
         }
@@ -70,7 +71,7 @@ class CreatePumController extends Controller
         $substring  = substr($getTrxNum,4);
         $thisYear   = date('Y');
         $trx_num    = $thisYear.($substring+1);
-
+/*
         $data  = new trx_all();
         $data->trx_num          = $trx_num;
         $data->trx_date         = date('Y-m-d');
@@ -93,7 +94,10 @@ class CreatePumController extends Controller
         $data->curr_code        = 'Rp';
         $data->amount           = $request->amount;
         $data->save();
+*/
+      app('app\Http\Controllers\PumContoller\CekApprovalController')->cekStatusPum($emp_id,$request->amount);
 
-        return response()->json(['error' => false,'message' => 'sukses'], $this->successStatus);
+        return response()->json(['error' => false,'message' => 'ss'], $this->successStatus);
+//        return response()->json(['error' => false,'message' => 'sukses'], $this->successStatus);
     }
 }

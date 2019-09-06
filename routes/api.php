@@ -43,6 +43,10 @@ Route::post('getdocdetail', 'PumController\CreatePumController@getDocDetail');
 Route::post('createpum',    'PumController\CreatePumController@createPum');
 
 
+//*********** Approval PUM Route ******************//
+Route::post('listapproval',     'PumController\ApprovalController@listApproval');
+Route::post('detailpum',        'PumController\ApprovalController@detailPum');
+Route::post('approvepum',       'PumController\ApprovalController@approvePum');
 
 
 

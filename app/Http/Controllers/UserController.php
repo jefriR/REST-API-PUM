@@ -37,7 +37,10 @@ class UserController extends Controller
         $cekPassword = password_verify($request->password,$cekId[0]->PASSWORD);
 
         if ($cekId > 0 && $cekPassword == true) {
-            $return = DB::select("SELECT xx.*, max(xx.proxy_amount_to) as MAX_AMOUNT FROM (SELECT a.*,c.PROXY_AMOUNT_TO FROM hr_employees a, pum_app_hierar c where a.EMP_NUM = '$nik' AND c.EMP_ID = a.EMP_ID) as xx");
+            $return = DB::select("SELECT xx.*, max(xx.proxy_amount_to) as MAX_AMOUNT, yy.role_id FROM (SELECT a.*,c.PROXY_AMOUNT_TO FROM hr_employees a, pum_app_hierar c where a.EMP_NUM = '$nik' AND c.EMP_ID = a.EMP_ID) as xx 
+                                            LEFT JOIN (SELECT a.user_id, a.description, a.emp_id, b.resp_id, c.name, c.menu_id, c.role_id FROM `sys_user` a LEFT JOIN `sys_user_resp` b ON a.user_id = b.user_id LEFT JOIN `sys_resp` c ON b.resp_id = c.resp_id ) as yy
+                                            ON xx.emp_id = yy.emp_id");
+
             return response()->json(['error' => false,'message' => "Login Successfully", 'user' => $return[0]],200);
         } elseif($cekPassword == false){
             return response()->json(['error' => true,'message' => "Password Not Match"],302);

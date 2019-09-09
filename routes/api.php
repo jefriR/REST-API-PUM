@@ -49,6 +49,8 @@ Route::post('listapproval',     'PumController\ApprovalController@listApproval')
 Route::post('detailpum',        'PumController\ApprovalController@detailPum');
 Route::post('approvepum',       'PumController\ApprovalController@approvePum');
 
+//*********** History Pum ******************//
+Route::post('historycreatepum',     'PumController\HistoryPumController@historyCreatePum');
 
 
 //Route::group(['middleware' => 'auth:api'], function(){

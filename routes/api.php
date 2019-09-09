@@ -37,10 +37,11 @@ Route::POST('register', 'UserController@register');
 
 
 //*********** Create PUM Route ******************//
-Route::get('getdept',       'PumController\CreatePumController@getdept');
-Route::get('gettrxtype',    'PumController\CreatePumController@gettrxtype');
-Route::post('getdocdetail', 'PumController\CreatePumController@getDocDetail');
-Route::post('createpum',    'PumController\CreatePumController@createPum');
+Route::post('cekavailablepum',  'PumController\CreatePumController@cekAvailablePum');
+Route::get('getdept',           'PumController\CreatePumController@getdept');
+Route::get('gettrxtype',        'PumController\CreatePumController@gettrxtype');
+Route::post('getdocdetail',     'PumController\CreatePumController@getDocDetail');
+Route::post('createpum',        'PumController\CreatePumController@createPum');
 
 
 //*********** Approval PUM Route ******************//

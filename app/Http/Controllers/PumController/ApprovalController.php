@@ -47,13 +47,21 @@ class ApprovalController extends Controller
         $validator = Validator::make($request->all(), [
             'emp_id'        => 'required | string',
             'pum_trx_id'    => 'required | string',
-            'kode_id'       => 'required | number',
+            'pin'           => 'required | string',
+            'kode'          => 'required | string',
             'description'   => 'string',
-            'pin'           => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error'=>true, 'message' => "Required Parameters are Missing or Empty"], 401);
+        }
+
+        // Cek PIN user sebelum Approve PUM
+        $nik    = DB::table('hr_employees')->select("emp_num")->where('emp_id', $request->emp_id)->get();
+        $pinUser= DB::table('users')->select('pin')->where('emp_num',$nik[0]->emp_num)->get();
+        $cekPin = password_verify($request->pin,$pinUser[0]->pin);
+        if ($cekPin == false){
+            return response()->json(['error'=>true, 'message' => "pin salah"], 400);
         }
 
         DB::table('PUM_TRX_ALL')->where('PUM_TRX_ID', $request->pum_trx_id)->update(['PUM_STATUS'=> 'APP1', 'APPROVAL_EMP_ID1'=> $request->emp_id, 'APPROVAL_DATE1'=>$date]);

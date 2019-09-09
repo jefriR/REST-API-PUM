@@ -17,8 +17,22 @@ class CreatePumController extends Controller
 {
     public $successStatus = 200;
 
+    public function cekAvailablePum(Request $request){
+        $validator = Validator::make($request->all(), [
+            'emp_id'      => 'required | string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error'=>true, 'message' => "Required Parameters are Missing or Empty"], 401);
+        }
+
+        $data   = DB::select("SELECT * FROM pum_trx_all WHERE emp_id = '$request->emp_id' AND pum_status NOT LIKE 'R' AND pum_status NOT LIKE 'I'");
+        return response()->json(['error' => false,'message' => count($data)], $this->successStatus);
+
+    }
+
     public function getdept(){
-        $department = Department::all('dept_id', 'name', 'description');
+        $department = Department::all('dept_id', 'name', 'description');;
         return response()->json(['error' => false,'department' => $department], $this->successStatus);
     }
 

@@ -111,10 +111,10 @@ class CreatePumController extends Controller
 
 //      app('app\Http\Controllers\PumContoller\CekApprovalController')->cekStatusPum($emp_id,$request->amount);
 
-        $cekApproval    = DB::select("SELECT * FROM PUM_APP_HIERAR WHERE EMP_ID = '$emp_id' AND '$request->amount' BETWEEN PROXY_AMOUNT_FROM AND PROXY_AMOUNT_TO AND ACTIVE_FLAG = 'Y'");
-        foreach ($cekApproval as $data){
-            DB::select("INSERT INTO PUM_UPLOAD_TEMP(TRX_ID, APPROVAL_ID) VALUES ( '$trx_id', '$data->APPROVAL_EMP_ID1')");
-        }
+//        $cekApproval    = DB::select("SELECT * FROM PUM_APP_HIERAR WHERE EMP_ID = '$emp_id' AND '$request->amount' BETWEEN PROXY_AMOUNT_FROM AND PROXY_AMOUNT_TO AND ACTIVE_FLAG = 'Y'");
+//        foreach ($cekApproval as $data){
+//            DB::select("INSERT INTO PUM_UPLOAD_TEMP(TRX_ID, APPROVAL_ID) VALUES ( '$trx_id', '$data->APPROVAL_EMP_ID1')");
+//        }
 
         return response()->json(['error' => false,'message' => 'sukses'], $this->successStatus);
     }

@@ -18,8 +18,47 @@ class ApprovalController extends Controller
             return response()->json(['error'=>true, 'message' => "Required Parameters are Missing or Empty"], 401);
         }
 
-        $data = DB::select("SELECT a.trx_id,b.trx_num, d.name,c.amount FROM `pum_upload_temp` a LEFT JOIN `pum_trx_all` b ON a.trx_id = b.pum_trx_id LEFT JOIN `pum_trx_lines_all` c ON a.trx_id = c.pum_trx_id LEFT JOIN `hr_employees` d ON b.emp_id = d.emp_id WHERE a.APPROVAL_ID = '$request->emp_id'");
-        return response()->json(['error'=>false, 'message' => $data], 200);
+        $query   = DB::select("SELECT a.pum_trx_id, a.emp_id, b.amount, a.pum_status
+                                    FROM `pum_trx_all` a 
+                                    LEFT JOIN `pum_trx_lines_all` b ON a.pum_trx_id = b.pum_trx_id 
+                                    WHERE a.PUM_STATUS IN ('N','APP1','APP2','APP3','APP4') ");
+
+        foreach ($query as $data){
+            $columntemp   = 'approval_emp_id1';
+            if($data->pum_status == 'N') {
+                $columntemp = 'approval_emp_id1';
+            } elseif ($data->pum_status == 'APP1'){
+                $columntemp = 'approval_emp_id2';
+            } elseif ($data->pum_status == 'APP2'){
+                $columntemp = 'approval_emp_id3';
+            } elseif ($data->pum_status == 'APP3'){
+                $columntemp = 'approval_emp_id4';
+            } elseif ($data->pum_status == 'APP4'){
+                $columntemp = 'approval_emp_id5';
+            }
+
+            $findPumId   = DB::select("SELECT * FROM `pum_app_hierar` 
+                                    WHERE emp_id = '$data->emp_id'
+                                    and active_flag = 'Y'
+                                    AND '$data->amount' BETWEEN proxy_amount_from AND proxy_amount_to
+                                    AND  $columntemp = '$request->emp_id'"); /*33337 / 99231*/
+
+            if ($findPumId != null) {
+                $datas[] = $data->pum_trx_id;
+            }
+        }
+
+        foreach ($datas as $data){
+            $result = DB::select("SELECT a.pum_trx_id, a.trx_num, b.name, a.trx_date, c.amount 
+                                        FROM `pum_trx_all` a 
+                                        LEFT JOIN `hr_employees` b on a.emp_id = b.emp_id 
+                                        LEFT JOIN `pum_trx_lines_all` c on a.pum_trx_id = c.pum_trx_id 
+                                        WHERE a.pum_trx_id= '$data'");
+
+            $tempData[] = $result[0];
+        }
+
+        return response()->json(['error' => true,'message' => $tempData],200);
     }
 
     public function detailPum(Request $request){
@@ -44,12 +83,18 @@ class ApprovalController extends Controller
 
     public function approvePum(Request $request){
         $date   = date('Y-m-d');
+        $emp_id = $request->emp_id;
+        $pum_id = $request->pum_trx_id;
+        $pin    = $request->pin;
+        $kode   = $request->kode;
+        $reason = $request->reason_validate;
+
         $validator = Validator::make($request->all(), [
-            'emp_id'        => 'required | string',
-            'pum_trx_id'    => 'required | string',
-            'pin'           => 'required | string',
-            'kode'          => 'required | string',
-            'description'   => 'string',
+            'emp_id'            => 'required | string',
+            'pum_trx_id'        => 'required | string',
+            'pin'               => 'required | string',
+            'kode'              => 'required | string',
+            'reason_validate'   => 'string',
         ]);
 
         if ($validator->fails()) {
@@ -57,18 +102,53 @@ class ApprovalController extends Controller
         }
 
         // Cek PIN user sebelum Approve PUM
-        $nik    = DB::table('hr_employees')->select("emp_num")->where('emp_id', $request->emp_id)->get();
+        $nik    = DB::table('hr_employees')->select("emp_num")->where('emp_id', $emp_id)->get();
         $pinUser= DB::table('users')->select('pin')->where('emp_num',$nik[0]->emp_num)->get();
-        $cekPin = password_verify($request->pin,$pinUser[0]->pin);
+        $cekPin = password_verify($pin,$pinUser[0]->pin);
         if ($cekPin == false){
             return response()->json(['error'=>true, 'message' => "pin salah"], 400);
         }
 
-        DB::table('PUM_TRX_ALL')->where('PUM_TRX_ID', $request->pum_trx_id)->update(['PUM_STATUS'=> 'APP1', 'APPROVAL_EMP_ID1'=> $request->emp_id, 'APPROVAL_DATE1'=>$date]);
-        DB::table('PUM_UPLOAD_TEMP')->where('TRX_ID', $request->pum_trx_id)->delete();
+        // Cek kode approval ke berapa
+        $query   = DB::select("SELECT a.pum_trx_id, a.emp_id, a.pum_status
+                                     FROM `pum_trx_all` a 
+                                     WHERE a.pum_trx_id = '$pum_id'");
+        foreach ($query as $data) {
+            $columntemp = 'approval_emp_id1';
+            $columndate = 'approval_date1';
+            if ($data->pum_status == 'N') {
+                $columntemp = 'approval_emp_id1';
+                $columndate = 'approval_date1';
+                $status     = 'APP1';
+            } elseif ($data->pum_status == 'APP1') {
+                $columntemp = 'approval_emp_id2';
+                $columndate = 'approval_date2';
+                $status     = 'APP2';
+            } elseif ($data->pum_status == 'APP2') {
+                $columntemp = 'approval_emp_id3';
+                $columndate = 'approval_date3';
+                $status     = 'APP3';
+            } elseif ($data->pum_status == 'APP3') {
+                $columntemp = 'approval_emp_id4';
+                $columndate = 'approval_date4';
+                $status     = 'APP4';
+            } elseif ($data->pum_status == 'APP4') {
+                $columntemp = 'approval_emp_id5';
+                $columndate = 'approval_date5';
+                $status     = 'APP5';
+            }
+        }
 
-        return response()->json(['error'=>false, 'message' => 'APPROVAL 1 SUKSES'], 200);
+        // Cek Kode, apakah di Reject atau di Approve
+        if($kode == 0) {
+            DB::table('PUM_TRX_ALL')->where('PUM_TRX_ID', $pum_id)->update(['PUM_STATUS'=> 'R', $columntemp => $emp_id, $columndate=>$date, 'REASON_VALIDATE' => $reason]);
+        } elseif ($kode == 1){
+            DB::table('PUM_TRX_ALL')->where('PUM_TRX_ID', $request->pum_trx_id)->update(['PUM_STATUS'=> $status, $columntemp=> $emp_id, $columndate=>$date]);
+        } else {
+            return response()->json(['error'=>true, 'message' => "ERROR"], 400);
+        }
 
-
+        return response()->json(['error'=>false, 'message' => 'APPROVAL SUKSES'], 200);
     }
+
 }

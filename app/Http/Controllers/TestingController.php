@@ -21,6 +21,7 @@ and a.active_flag = 'Y'
 and c.amount BETWEEN a.proxy_amount_from AND a.proxy_amount_to");
 
 
+        dd('stop');
 
 
 

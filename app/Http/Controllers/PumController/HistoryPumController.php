@@ -38,6 +38,9 @@ class HistoryPumController extends Controller
         return response()->json(['error'=>false, 'message' => $data], 200);
     }
 
+    public function test(){
+
+    }
 
 
 

@@ -11,6 +11,35 @@ use Illuminate\Support\Facades\DB;
 class TestingController extends Controller
 {
     public function testing(){
+
+        $test   = DB::select("SELECT a.APPROVAL_EMP_ID4 as approval
+FROM `pum_app_hierar` a 
+LEFT JOIN `pum_trx_all` b on a.emp_id = b.emp_id 
+LEFT JOIN `pum_trx_lines_all` c on b.pum_trx_id = c.pum_trx_id
+where b.pum_trx_id = 1961
+and a.active_flag = 'Y'
+and c.amount BETWEEN a.proxy_amount_from AND a.proxy_amount_to");
+
+        $flag   = 0;
+        foreach ($test as $dt){
+            if($dt->approval > 1) {
+                $flag = $flag + 1;
+            }
+            echo $dt->approval . '<br>';
+        }
+
+        echo $flag;
+
+        if ($flag == null){
+            dd('null');
+        } else{
+            dd('notnull');
+        }
+
+
+
+
+
 //        $nik    = DB::table('hr_employees')->select("emp_num")->where('name', 'SUGIANTO')->get();
 //        $pinUser= DB::table('users')->select('pin')->where('emp_num',$nik[0]->emp_num)->get();
 

@@ -20,21 +20,6 @@ where b.pum_trx_id = 1961
 and a.active_flag = 'Y'
 and c.amount BETWEEN a.proxy_amount_from AND a.proxy_amount_to");
 
-        $flag   = 0;
-        foreach ($test as $dt){
-            if($dt->approval > 1) {
-                $flag = $flag + 1;
-            }
-            echo $dt->approval . '<br>';
-        }
-
-        echo $flag;
-
-        if ($flag == null){
-            dd('null');
-        } else{
-            dd('notnull');
-        }
 
 
 

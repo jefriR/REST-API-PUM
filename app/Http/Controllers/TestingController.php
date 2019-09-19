@@ -7,10 +7,38 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class TestingController extends Controller
 {
-    public function testing(){
+    public function testarray(Request $request){
+        $validator = Validator::make($request->all(),[
+            'data'     => 'required | array',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error'=>true, 'message' => $validator->errors()], 401);
+        }
+
+        $datas  = $request->data;
+
+//        foreach ($datas as $data){
+//            echo  $data. ' ';
+//        }
+
+        return response()->json([], 200);
+    }
+
+
+    public function testing(Request $request){
+
+        $nik    = DB::table('hr_employees')->select("emp_num")->where('name', 'DENY ROHMANDA')->get();
+        $pinUser= DB::table('users')->select('pin')->where('emp_num',$nik[0]->emp_num)->get(); dd($pinUser);
+        $cekPin = password_verify($request->pin,$pinUser[0]->pin);
+        if ($cekPin == false){
+            return response()->json(['error'=>true, 'message' => "pin salah"], 400);
+        }
+
 
         $test   = DB::select("SELECT a.APPROVAL_EMP_ID4 as approval
 FROM `pum_app_hierar` a 

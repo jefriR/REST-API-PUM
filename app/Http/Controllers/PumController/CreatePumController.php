@@ -58,7 +58,7 @@ class CreatePumController extends Controller
             'description'   => 'required',
             'pin'           => 'required',
             'amount'        => 'required',
-            'upload_file'   => 'required'
+            'upload_file'   => 'required | image |mimes:jpeg,jpg,png| max: 2048',
         ]);
 
         if ($validator->fails()) {
@@ -86,6 +86,13 @@ class CreatePumController extends Controller
         $thisYear   = date('Y');
         $trx_num    = $thisYear.($substring+1);
 
+        //Rename Image's Name For upload_data
+        $image          = $request->upload_file;
+        $destination    = 'uploadData';
+        $upload_data    = $trx_num.'_1_1_0';
+        $file_data      = $image->getClientOriginalName();
+        $image->move($destination, $file_data);
+
         $data  = new trx_all();
         $data->trx_num          = $trx_num;
         $data->trx_date         = date('Y-m-d');
@@ -95,7 +102,8 @@ class CreatePumController extends Controller
         $data->use_date         = $request->use_date;
         $data->resp_estimate_date = $request-> resp_date;
         $data->pum_status       = 'N';
-        $data->upload_data      = $request->upload_file;
+        $data->files_data       = $file_data;
+        $data->upload_data      = $upload_data;
         $data->save();
 
         $trx_id = DB::select("SELECT pum_trx_id FROM pum_trx_all WHERE PUM_TRX_ID = (SELECT MAX(PUM_TRX_ID) from pum_trx_all)");

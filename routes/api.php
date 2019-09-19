@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 //});
 
 Route::get('test', 'TestingController@testing');
+Route::POST('testarray', 'TestingController@testarray');
 
 //Route::post('login', 'API\UserController2@login');
 //Route::post('register', 'API\UserController2@register');

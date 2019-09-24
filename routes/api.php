@@ -53,7 +53,7 @@ Route::post('approvepum',       'PumController\ApprovalController@approvePum');
 //*********** History Pum ******************//
 Route::post('historycreatepum',         'PumController\HistoryPumController@historyCreatePum');
 Route::post('filterhistorycreatepum',   'PumController\HistoryPumController@filterHistoryCreatePum');
-
+Route::post('historyapprovepum',       'PumController\HistoryPumController@historyApprovalPum');
 
 //Route::group(['middleware' => 'auth:api'], function(){
 //    Route::post('details', 'API\UserController@details');

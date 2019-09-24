@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\PumController;
 
+use App\ApprovalPum;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -9,6 +10,14 @@ use Illuminate\Support\Facades\Validator;
 
 class ApprovalController extends Controller
 {
+    public function saveApprovalPum($emp_id, $pum_id, $status){
+        $data  = new ApprovalPum();
+        $data->emp_id           = $emp_id;
+        $data->pum_trx_id       = $pum_id;
+        $data->status           = $status;
+        $data->save();
+    }
+
     public function listApproval(Request $request){
         $validator = Validator::make($request->all(), [
             'emp_id'      => 'required | string'
@@ -154,6 +163,7 @@ class ApprovalController extends Controller
             // Cek Kode, apakah di Reject atau di Approve
             if ($kode == 0) {
                 DB::table('PUM_TRX_ALL')->where('PUM_TRX_ID', $pum_id)->update(['PUM_STATUS' => 'R', $columntemp => $emp_id, $columndate => $date, 'REASON_VALIDATE' => $reason]);
+                $this->saveApprovalPum($emp_id,$pum_id,'R');
                 return response()->json(['error' => false, 'message' => 'REJECT SUKSES'], 200);
             } elseif ($kode == 1) {
                 // Cek apakah sudah final approve atau belum
@@ -174,8 +184,10 @@ class ApprovalController extends Controller
 
                 if ($flag == null) {
                     DB::table('PUM_TRX_ALL')->where('PUM_TRX_ID', $pum_id)->update(['PUM_STATUS' => 'A', $columntemp => $emp_id, $columndate => $date]);
+                    $this->saveApprovalPum($emp_id,$pum_id,'APP');
                 } else {
                     DB::table('PUM_TRX_ALL')->where('PUM_TRX_ID', $pum_id)->update(['PUM_STATUS' => $status, $columntemp => $emp_id, $columndate => $date]);
+                    $this->saveApprovalPum($emp_id,$pum_id,'APP');
                 }
             } else {
                 return response()->json(['error' => true, 'message' => "ERROR"], 400);

@@ -56,7 +56,7 @@ Route::post('filterhistorycreatepum',   'PumController\HistoryPumController@filt
 Route::post('historyapprovepum',        'PumController\HistoryPumController@historyApprovalPum');
 
 //*********** Responsibility Pum ******************//
-Route::post('getdatarespon',    'PumController\ResponsibilityController@getAllData');
+Route::post('getdataresponse',    'PumController\ResponsibilityController@getAllData');
 
 
 

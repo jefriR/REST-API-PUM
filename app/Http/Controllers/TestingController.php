@@ -32,6 +32,19 @@ class TestingController extends Controller
 
     public function testing(Request $request){
 
+$date = date('Y-m-d');
+$dt2 = date('Y-m-d',mktime(0, 0, 0, date("m")-3, date("d"), date("Y")));
+
+$select = DB::select("select * from pum_trx_all where trx_date between '$dt2' and '$date'");
+
+dd($select);
+
+echo $date."<br>".$dt2;
+dd('s');
+
+        $startdate = date('Y-m-d', Carbon::today());
+        dd($startdate);
+
         $nik    = DB::table('hr_employees')->select("emp_num")->where('name', 'DENY ROHMANDA')->get();
         $pinUser= DB::table('users')->select('pin')->where('emp_num',$nik[0]->emp_num)->get(); dd($pinUser);
         $cekPin = password_verify($request->pin,$pinUser[0]->pin);

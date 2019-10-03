@@ -27,7 +27,7 @@ class UserController extends Controller
         $nik         = $request->emp_num;
         $cekId       = DB::select("select * from users where emp_num like '$nik'");
         if($cekId == null){
-            return response()->json(['error' => true,'message' => "User Not Exist"],302);
+            return response()->json(['error' => true,'message' => "User not exist"],302);
         }
 
         if ($validator->fails()) {
@@ -37,13 +37,13 @@ class UserController extends Controller
         $cekPassword = password_verify($request->password,$cekId[0]->PASSWORD);
 
         if ($cekId > 0 && $cekPassword == true) {
-            $return = DB::select("SELECT xx.*, max(xx.proxy_amount_to) as MAX_AMOUNT, yy.role_id FROM (SELECT a.*,c.PROXY_AMOUNT_TO FROM hr_employees a, pum_app_hierar c where a.EMP_NUM = '$nik' AND c.EMP_ID = a.EMP_ID) as xx 
-                                            LEFT JOIN (SELECT a.user_id, a.description, a.emp_id, b.resp_id, c.name, c.menu_id, c.role_id FROM `sys_user` a LEFT JOIN `sys_user_resp` b ON a.user_id = b.user_id LEFT JOIN `sys_resp` c ON b.resp_id = c.resp_id ) as yy
+            $return = DB::select("SELECT xx.*, max(xx.proxy_amount_to) as MAX_AMOUNT, yy.role_id, yy.menu_id, yy.respname FROM (SELECT a.*,c.PROXY_AMOUNT_TO FROM hr_employees a, pum_app_hierar c where a.EMP_NUM = '$nik' AND c.EMP_ID = a.EMP_ID) as xx 
+                                            LEFT JOIN (SELECT a.user_id, a.description, a.emp_id, b.resp_id, c.name, c.menu_id, c.role_id, c.name as respname  FROM `sys_user` a LEFT JOIN `sys_user_resp` b ON a.user_id = b.user_id LEFT JOIN `sys_resp` c ON b.resp_id = c.resp_id ) as yy
                                             ON xx.emp_id = yy.emp_id");
 
             return response()->json(['error' => false,'message' => "Login Successfully", 'user' => $return[0]],200);
         } elseif($cekPassword == false){
-            return response()->json(['error' => true,'message' => "Password Not Match"],302);
+            return response()->json(['error' => true,'message' => "Password not match"],302);
         }elseif ($cekId == null) {
             return response()->json(['error'=>'Unauthorised'],422);
         } else{
@@ -59,7 +59,7 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error'=>true, 'message' => "Required Parameters are Missing or Empty"], 401);
+            return response()->json(['error'=>true, 'message' => "Required parameters are missing or empty"], 401);
         }
 
         $emp_num    = $request->emp_num;
@@ -73,12 +73,12 @@ class UserController extends Controller
                 $input['pin']       = bcrypt($input['pin']);
                 $user               = User::create($input);
 
-                return response()->json(['error' => false,'message' => "User Created Successfully"], 201);
+                return response()->json(['error' => false,'message' => "User created successfully"], 200);
             } else {
-                return response()->json(['error' => true, 'message' => "User Already Exists"], 422);
+                return response()->json(['error' => true, 'message' => "User already exist"], 200);
             }
         } else {
-            return response()->json(['error'=> true, 'message' => "ID Dont Registered"], 422);
+            return response()->json(['error'=> true, 'message' => "ID not registered"], 200);
         }
     }
 

@@ -19,7 +19,8 @@ class CreatePumController extends Controller
 
     public function cekAvailablePum(Request $request){
         $validator = Validator::make($request->all(), [
-            'emp_id'      => 'required | string',
+            'emp_id'    => 'required | string',
+            'max_created_pum'   => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -27,7 +28,14 @@ class CreatePumController extends Controller
         }
 
         $data   = DB::select("SELECT * FROM pum_trx_all WHERE emp_id = '$request->emp_id' AND pum_status NOT LIKE 'R' AND pum_status NOT LIKE 'I'");
-        return response()->json(['error' => false,'message' => count($data)], $this->successStatus);
+        $data   = count($data);
+        $max    = $request->max_created_pum;
+
+        if($data == $max) {
+            return response()->json(['error'=>true, 'message' => "Not Available to Create New Pum"], 401);
+        } else if($data < $max) {
+            return response()->json(['error' => false,'message' => "Available to Create New Pum"], 200);
+        }
 
     }
 
@@ -49,7 +57,7 @@ class CreatePumController extends Controller
 
     public  function createPum(Request $request){
         $validator = Validator::make($request->all(), [
-            'emp_name'      => 'required | string',
+            'emp_id'        => 'required | string',
             'emp_dept'      => 'required',
             'use_date'      => 'required | date',
             'resp_date'     => 'required | date',
@@ -58,7 +66,7 @@ class CreatePumController extends Controller
             'description'   => 'required',
             'pin'           => 'required',
             'amount'        => 'required',
-            'upload_file'   => 'required | image |mimes:jpeg,jpg,png| max: 2048',
+            'upload_file'   => 'required | string',
         ]);
 
         if ($validator->fails()) {
@@ -66,7 +74,7 @@ class CreatePumController extends Controller
         }
 
         // Cek PIN user sebelum create new PUM
-        $nik    = DB::table('hr_employees')->select("emp_num")->where('name', $request->emp_name)->get();
+        $nik    = DB::table('hr_employees')->select("emp_num")->where('emp_id', $request->emp_id)->get();
         $pinUser= DB::table('users')->select('pin')->where('emp_num',$nik[0]->emp_num)->get();
         $cekPin = password_verify($request->pin,$pinUser[0]->pin);
         if ($cekPin == false){
@@ -74,8 +82,8 @@ class CreatePumController extends Controller
         }
 
         //Get id Employ + Depart
-        $emp_id = DB::table('hr_employees')->select('emp_id')->where('name',$request->emp_name)->get();
-        $emp_id = $emp_id[0]->{'emp_id'};
+        // $emp_id = DB::table('hr_employees')->select('emp_id')->where('name',$request->emp_name)->get();
+        // $emp_id = $emp_id[0]->{'emp_id'};
         $dept_id = DB::table('hr_departments')->select('dept_id')->where('name',$request->emp_dept)->get();
         $dept_id = $dept_id[0]->{'dept_id'};
 
@@ -87,23 +95,23 @@ class CreatePumController extends Controller
         $trx_num    = $thisYear.($substring+1);
 
         //Rename Image's Name For upload_data
-        $image          = $request->upload_file;
-        $destination    = 'uploadData';
-        $upload_data    = $trx_num.'_1_1_0';
-        $file_data      = $image->getClientOriginalName();
-        $image->move($destination, $file_data);
+        // $image          = $request->upload_file;
+        // $destination    = 'public_html/jeffapi/uploadData';
+        // $upload_data    = $trx_num.'_1_1_0';
+        // $file_data      = $image->getClientOriginalName();
+        // $image->move($destination, $file_data);
 
         $data  = new trx_all();
         $data->trx_num          = $trx_num;
         $data->trx_date         = date('Y-m-d');
-        $data->emp_id           = $emp_id;
+        $data->emp_id           = $request->emp_id;
         $data->dept_id          = $dept_id;
         $data->po_number        = $request->doc_num;
         $data->use_date         = $request->use_date;
         $data->resp_estimate_date = $request-> resp_date;
         $data->pum_status       = 'N';
-        $data->files_data       = $file_data;
-        $data->upload_data      = $upload_data;
+        $data->files_data       = $request->upload_file;
+        $data->upload_data      = $request->upload_file;
         $data->save();
 
         $trx_id = DB::select("SELECT pum_trx_id FROM pum_trx_all WHERE PUM_TRX_ID = (SELECT MAX(PUM_TRX_ID) from pum_trx_all)");
@@ -115,6 +123,7 @@ class CreatePumController extends Controller
         $data->description      = $request->description;
         $data->curr_code        = 'Rp';
         $data->amount           = $request->amount;
+        $data->amount_remaining = $request->amount;
         $data->save();
 
         return response()->json(['error' => false,'message' => 'sukses'], $this->successStatus);

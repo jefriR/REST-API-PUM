@@ -36,6 +36,9 @@ Route::get('users', 'API\UserController2@users');
 Route::POST('login',    'UserController@login');
 Route::POST('register', 'UserController@register');
 
+//*********** Detail PUM Route ******************//
+Route::post('detailpum',        'PumController\DetailPumController@detailPum');
+Route::post('summarycreatepum', 'PumController\DetailPumController@summaryCreatePum');
 
 //*********** Create PUM Route ******************//
 Route::post('cekavailablepum',  'PumController\CreatePumController@cekAvailablePum');
@@ -46,17 +49,17 @@ Route::post('createpum',        'PumController\CreatePumController@createPum');
 
 
 //*********** Approval PUM Route ******************//
-Route::post('listapproval',     'PumController\ApprovalController@listApproval');
-Route::post('detailpum',        'PumController\ApprovalController@detailPum');
+Route::post('listapproval',     'PumController\ApprovalController@listApproval');;
 Route::post('approvepum',       'PumController\ApprovalController@approvePum');
 
-//*********** History Pum ******************//
+//*********** History Pum Route ******************//
 Route::post('historycreatepum',         'PumController\HistoryPumController@historyCreatePum');
 Route::post('filterhistorycreatepum',   'PumController\HistoryPumController@filterHistoryCreatePum');
 Route::post('historyapprovepum',        'PumController\HistoryPumController@historyApprovalPum');
 
-//*********** Responsibility Pum ******************//
-Route::post('getdataresponse',    'PumController\ResponsibilityController@getAllData');
+//*********** Responsibility Pum Route ******************//
+Route::post('getdataresponse',  'PumController\ResponsibilityController@getAllData');
+Route::post('submitresponse',     'PumController\ResponsibilityController@submitResponsibility');
 
 
 

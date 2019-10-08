@@ -81,9 +81,7 @@ class CreatePumController extends Controller
             return response()->json(['error'=>true, 'message' => "pin salah"], 400);
         }
 
-        //Get id Employ + Depart
-        // $emp_id = DB::table('hr_employees')->select('emp_id')->where('name',$request->emp_name)->get();
-        // $emp_id = $emp_id[0]->{'emp_id'};
+        //Get id Depart
         $dept_id = DB::table('hr_departments')->select('dept_id')->where('name',$request->emp_dept)->get();
         $dept_id = $dept_id[0]->{'dept_id'};
 

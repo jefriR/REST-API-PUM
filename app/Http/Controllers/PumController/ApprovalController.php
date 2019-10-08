@@ -75,26 +75,6 @@ class ApprovalController extends Controller
         return response()->json(['error' => true,'message' => $tempData],200);
     }
 
-    public function detailPum(Request $request){
-        $validator = Validator::make($request->all(), [
-            'pum_trx_id'      => 'required | string'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error'=>true, 'message' => "Required Parameters are Missing or Empty"], 401);
-        }
-
-        $data = DB::select(" SELECT a.pum_trx_id, a.trx_num, a.trx_date,a.use_date, a.resp_estimate_date, a.upload_data, b.description, b.amount, c.emp_num, c.name, d.description as department
-                                    FROM `pum_trx_all` a 
-                                    LEFT JOIN `pum_trx_lines_all` b ON  a.pum_trx_id = b.pum_trx_id 
-                                    LEFT JOIN `hr_employees` c ON a.emp_id = c.emp_id
-                                    LEFT JOIN `hr_departments` d ON c.dept_id = d.dept_id
-                                    WHERE a.pum_trx_id = '$request->pum_trx_id'");
-
-        return response()->json(['error'=>false, 'message' => $data], 200);
-
-    }
-
     public function approvePum(Request $request){
         $validator = Validator::make($request->all(), [
             'emp_id'            => 'required | string',

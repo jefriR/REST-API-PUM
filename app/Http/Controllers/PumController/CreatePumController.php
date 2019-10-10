@@ -108,6 +108,7 @@ class CreatePumController extends Controller
         $data->use_date         = $request->use_date;
         $data->resp_estimate_date = $request-> resp_date;
         $data->pum_status       = 'N';
+        $data->resp_status       = 'N';
         $data->files_data       = $request->upload_file;
         $data->upload_data      = $request->upload_file;
         $data->save();

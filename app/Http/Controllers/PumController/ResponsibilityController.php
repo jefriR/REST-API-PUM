@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\PumController;
 
+use App\resp_trx_all;
+use App\resp_trx_lines_all;
 use App\trx_all;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -41,11 +44,12 @@ class ResponsibilityController extends Controller
         $validator  = Validator::make($request->all(), [
             'emp_id'        => 'required | string',
             'pum_trx_id'    => 'required ',
-            'trans_type'    => 'required ',
+            'trx_type'      => 'required ',
+            'amount'        => 'required',
             'description'   => 'required |string',
             'store_code'    => 'string',
             'image'         => 'string',
-            'kode_respon'    => 'required',
+            'kode_respon'   => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -53,16 +57,58 @@ class ResponsibilityController extends Controller
         }
 
         $getDataPum = DB::select("SELECT * FROM pum_trx_all WHERE pum_trx_id = '$request->pum_trx_id'");
+        $getDataPum = $getDataPum[0];
+        $trx_num    = $getDataPum->TRX_NUM;
+        $trx_num    = $trx_num.'_1';
+        $date       = date('Y-m-d', strtotime(Carbon::today()));
 
-//        $data  = new trx_all();
-//        $data->
-//        $data->save();
+        $data                   = new resp_trx_all();
+        $data->pum_resp_trx_num = $trx_num;
+        $data->pum_trx_id       = $request->pum_trx_id;
+        $data->resp_date        = $date;
+        $data->resp_status      = 'N';
+        $data->approval_emp_id1 = $getDataPum->APPROVAL_EMP_ID1;
+        $data->approval_date1   = $getDataPum->APPROVAL_DATE1;
+        $data->approval_emp_id2 = $getDataPum->APPROVAL_EMP_ID2;
+        $data->approval_date2   = $getDataPum->APPROVAL_DATE2;
+        $data->approval_emp_id3 = $getDataPum->APPROVAL_EMP_ID3;
+        $data->approval_date3   = $getDataPum->APPROVAL_DATE3;
+        $data->save();
 
-        return response()->json(['error'=>false, 'message' => $getDataPum[0]], 200);
+        $resp_trx_id    = DB::select("SELECT a.pum_resp_trx_id as resp_trx_id
+                                                FROM `pum_resp_trx_all` a 
+                                                LEFT JOIN pum_trx_all b ON a.pum_trx_id = b.pum_trx_id
+                                                WHERE PUM_RESP_TRX_ID = (SELECT MAX(PUM_RESP_TRX_ID) FROM pum_resp_trx_all)
+                                                and b.EMP_ID = '$request->emp_id'");
+        $resp_trx_id    = $resp_trx_id[0]->{'resp_trx_id'};
+
+        $trx_line_id    = DB::select("SELECT PUM_TRX_LINE_ID FROM `pum_trx_lines_all` WHERE pum_trx_id = '$request->pum_trx_id'");
+        $trx_line_id    = $trx_line_id[0]->{'PUM_TRX_LINE_ID'};
+
+        $data                   = new resp_trx_lines_all();
+        $data->pum_resp_trx_id  = $resp_trx_id;
+        $data->pum_trx_line_id  = $trx_line_id;
+        $data->line_num         = 1;
+        $data->pum_resp_trx_type_id = $request->trx_type;
+        $data->description      = $request->description;
+        $data->amount           = $request->amount;
+        $data->store_code       = $request->store_code;
+        $data->save();
+
+        $getAmountResp      = DB::select("SELECT resp_amount FROM pum_trx_lines_all WHERE pum_trx_id = '$request->pum_trx_id'");
+        $getAmountResp      = $getAmountResp[0]->{'resp_amount'} + $request->amount;
+        $getAmountRemaining = DB::select("SELECT amount from pum_trx_lines_all WHERE pum_trx_id = '$request->pum_trx_id'");
+        $getAmountRemaining = $getAmountRemaining[0]->{'amount'} - $getAmountResp;
+
+        $updateAmntReaming  =   DB::table('pum_trx_lines_all')->where('pum_trx_id', $request->pum_trx_id)->update(["RESP_AMOUNT"=>$getAmountResp, "AMOUNT_REMAINING" => $getAmountRemaining]);
+
+        return response()->json(['error'=>false, 'message' => "sukses"], 200);
 
     }
 
 
+//'pum_resp_trx_id','', '', 'resp_date', 'resp_status','approval_emp_id1', 'approval_date1','approval_emp_id2', 'approval_date2', 'approval_emp_id3', 'approval_date3',
+//'pum_resp_trx_line_id','pum_resp_trx_id', '', 'line_num', 'pum_resp_trx_type_id','description', 'amount',
 
 
 }
